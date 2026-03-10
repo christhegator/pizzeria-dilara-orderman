@@ -1,0 +1,229 @@
+:root {
+    --bg-dark: #121212;
+    --bg-sidebar: #1e1e1e;
+    --card-bg: #ffffff;
+    --archive-card-bg: #2a2a2a;
+    --accent-red: #d32f2f;
+    --success-green: #27ae60;
+    --text-dark: #333;
+    --text-gray: #888;
+    --info-blue: #3498db;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, -apple-system, sans-serif;
+    background-color: var(--bg-dark);
+    color: white;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+/* --- LINKER BEREICH: OFFENE BONS --- */
+.main-kitchen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 10px; /* Reduziert von 20px */
+    border-right: 2px solid #333;
+    overflow: hidden;
+}
+
+.main-kitchen h1 {
+    text-align: center;
+    margin: 0 0 10px 0; /* Kompakter */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 1.2rem; /* Kleiner als 1.6rem */
+}
+
+#kitchen-grid {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap; /* Behält deine Wunsch-Sortierung bei: Oben -> Unten, dann Rechts */
+    align-content: flex-start;
+    gap: 10px; /* Reduziert von 15px */
+    flex-grow: 1;
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
+
+/* --- DIE OFFENE BON-KARTE --- */
+.order-card {
+    background: var(--card-bg);
+    color: var(--text-dark);
+    border-radius: 8px;
+    padding: 10px; /* Reduziert von 15px */
+    width: 260px; /* Schmaler als 320px */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    border-left: 6px solid var(--accent-red); /* Schmalerer Rand */
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+}
+
+.ticket-num {
+    font-size: 1.4rem; /* Reduziert von 2.2rem */
+    font-weight: 900;
+    color: var(--accent-red);
+    line-height: 1;
+}
+
+.time-box {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.countdown {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 800;
+    font-size: 0.75rem; /* Kleiner */
+}
+
+.timer-normal { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+.timer-urgent { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; animation: blink 1s infinite; }
+
+.pickup-time {
+    font-size: 1rem; /* Reduziert von 1.2rem */
+    font-weight: bold;
+    color: #444;
+    background: #f0f0f0;
+    padding: 2px 5px;
+    border-radius: 4px;
+}
+
+/* Artikelliste im Bon */
+.item-block {
+    padding: 4px 0; /* Deutlich kompakter als 10px */
+    list-style-type: none; /* Doppelte Absicherung */
+    border-bottom: 1px solid #f9f9f9;
+}
+
+.item-main-name {
+    font-size: 1.0rem; /* Reduziert von 1.4rem */
+    font-weight: 700;
+    color: #000;
+}
+
+.item-props {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #5a5a5a;
+    margin-left: 4px;
+}
+
+.item-extra {
+    font-size: 0.9rem; /* Kleiner als 1.1rem */
+    margin-left: 10px;
+    margin-top: 2px;
+}
+
+.item-extra span {
+    font-weight: bold;
+    font-size: 0.7rem;
+    display: inline-block;
+    width: 35px; /* Schmaleres Label */
+}
+
+.mit span { color: var(--success-green); }
+.ohne span { color: var(--accent-red); }
+
+.done-btn {
+    margin-top: 8px;
+    padding: 8px; /* Kompakter */
+    background: var(--success-green); 
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem; /* Reduziert von 1.2rem */
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.done-btn:hover { background: green; }
+
+
+/* --- RECHTER BEREICH: ARCHIV --- */
+.history-sidebar {
+    width: 280px; 
+    background: var(--bg-sidebar);
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    overflow-y: auto;
+    border-left: 1px solid #333;
+}
+
+.history-sidebar h2 {
+    font-size: 1rem;
+    text-align: center;
+    color: var(--text-gray);
+    text-transform: uppercase;
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #333;
+    }
+
+.archive-card {
+    background: var(--archive-card-bg);
+    color: #a0a0a0;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+    border-left: 5px solid #555;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    }
+
+.archive-card strong {
+    color: #fff;
+    font-size: 1.1rem;
+    }
+
+.archive-card small {
+    display: block;
+    margin: 5px 0;
+    color: #a0a0a0;
+    }
+
+.undo-btn {
+    width: 100%;
+    margin-top: 8px;
+    background: #444;
+    color: #eee;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    }
+
+.undo-btn:hover { background: #555; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #1a1a1a; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #444; }

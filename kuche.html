@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Küchen-Monitor | Pizzeria Dilara</title>
+    <link rel="stylesheet" href="style-kuche.css">
+</head>
+<body>
+
+    <div class="main-kitchen">
+        <h1>Offene Bestellungen - yallah yallah</h1>
+        <div id="kitchen-grid">
+            <div class="no-orders"><p style="margin-top: 50px">Keine offenen Bestellungen.</p><p>Du hast dir eine Pause verdient...</p></div>
+        </div>
+    </div>
+
+    <div class="history-sidebar">
+        <h2>Verlauf (Heute)</h2>
+        <div id="history-list"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+        import { getFirestore, collection, query, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB91SjJooMeFzG00w8sBdT8XUOk1PW9fIM",
+            authDomain: "pizzeria-dilara.firebaseapp.com",
+            projectId: "pizzeria-dilara",
+            storageBucket: "pizzeria-dilara.firebasestorage.app",
+            messagingSenderId: "481636272797",
+            appId: "1:481636272797:web:f4be0b2a3c597966b9a274"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let currentOffene = [];
+
+        // ECHTZEIT-ABFRAGE
+        const q = query(collection(db, "bestellungen"));
+        onSnapshot(q, (snapshot) => {
+            const allDocs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            
+            currentOffene = allDocs.filter(d => d.status !== "erledigt")
+                                   .sort((a, b) => a.pickupTime.localeCompare(b.pickupTime));
+            
+            const erledigte = allDocs.filter(d => d.status === "erledigt")
+                                     .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+            renderOffene(currentOffene);
+            renderHistory(erledigte);
+        });
+
+        function renderOffene(docs) {
+            const grid = document.getElementById('kitchen-grid');
+            if (docs.length === 0) {
+                grid.innerHTML = '<div class="no-orders"><p style="margin-top: 50px">Keine offenen Bestellungen.</p><p>Du hast dir eine Pause verdient...</p></div>';
+                return;
+            }
+
+            grid.innerHTML = "";
+            const jetzt = new Date();
+
+            docs.forEach((data) => {
+                // --- TIMER LOGIK ---
+                const pickupSplit = data.pickupTime.split(":");
+                const zielZeit = new Date();
+                zielZeit.setHours(parseInt(pickupSplit[0]), parseInt(pickupSplit[1]), 0, 0);
+                
+                const diffMs = zielZeit - jetzt;
+                const diffMin = Math.round(diffMs / 60000);
+                
+                let timerClass = "timer-normal";
+                let timerText = `${diffMin}m`;
+                if (diffMin <= 5) timerClass = "timer-urgent";
+                if (diffMin <= 0) timerText = "JETZT";
+                if (diffMin < 0) timerText = "DRÜBER!";
+
+                // --- ARTIKEL LOGIK (OBJEKT-STRUKTUR) ---
+                const itemsHtml = data.items.map(item => {
+                    // Prüfen, ob das Item ein Objekt ist (neue Logik)
+                    if (typeof item === 'object' && item !== null) {
+                        const propText = item.props && item.props.length > 0 ? ` (${item.props.join(", ")})` : "";
+                        
+                        return `
+                            <li class="item-block">
+                                <div class="item-main-name">
+                                    ${item.name}<span class="item-props">${propText}</span>
+                                </div>
+                                ${item.add && item.add.length > 0 ? `<div class="item-extra mit"><span>MIT:</span> ${item.add.join(", ")}</div>` : ''}
+                                ${item.remove && item.remove.length > 0 ? `<div class="item-extra ohne"><span>OHNE:</span> ${item.remove.join(", ")}</div>` : ''}
+                            </li>
+                        `;
+                    } 
+                    // Fallback für alte Text-Bestellungen
+                    else {
+                        return `<li class="item-block"><div class="item-main-name">${item}</div></li>`;
+                    }
+                }).join("");
+
+                const card = document.createElement('div');
+                card.className = "order-card";
+                card.innerHTML = `
+                    <div class="order-header">
+                        <span class="ticket-num">#${data.ticketNum}</span>
+                        <div class="time-box">
+                            <span class="countdown ${timerClass}">${timerText}</span>
+                            <span class="pickup-time">${data.pickupTime}</span>
+                        </div>
+                    </div>
+                    <ul class="items-list">${itemsHtml}</ul>
+                    <button class="done-btn" onclick="setStatus('${data.id}', 'erledigt')">✅ ERLEDIGT</button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderHistory(docs) {
+            const list = document.getElementById('history-list');
+            list.innerHTML = "";
+            docs.slice(0, 15).forEach(data => {
+                // Name extrahieren (entweder aus Objekt oder String)
+                const itemNames = data.items.map(item => {
+                    return typeof item === 'object' ? item.name : item.split(" (")[0];
+                }).join(", ");
+
+                const div = document.createElement('div');
+                div.className = "archive-card";
+                div.innerHTML = `
+                    <strong>#${data.ticketNum}</strong> - ${data.pickupTime} Uhr<br>
+                    <small>${itemNames}</small>
+                    <button class="undo-btn" onclick="setStatus('${data.id}', 'offen')">↩ ZURÜCKHOLEN</button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        window.setStatus = async (id, newStatus) => {
+            try {
+                await updateDoc(doc(db, "bestellungen", id), { status: newStatus });
+            } catch (e) {
+                console.error("Fehler beim Status-Update:", e);
+            }
+        };
+
+        // Timer alle 60 Sek. aktualisieren
+        setInterval(() => renderOffene(currentOffene), 60000);
+    </script>
+</body>
+</html>

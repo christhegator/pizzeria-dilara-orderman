@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pizzeria - Bestellaufnahme</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="extra-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="modal-title">Anpassen</h2>
+            <p style="font-size: 0.8rem; color: #666;">1x Tippen = Extra (Grün) | 2x Tippen = Ohne (Rot)</p>
+            <div class="modal-section">
+                <div class="extra-grid" id="zutaten-container"></div>
+            </div>
+            <div class="modal-actions">
+                <button class="confirm-btn" onclick="confirmItem()">HINZUFÜGEN</button>
+                <button class="cancel-btn" onclick="closeModal()">ABBRECHEN</button>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <h1>Pizzeria Dilara, Ihre Bestelllung bitte!</h1>
+       
+    </header>
+
+    <main>
+         <div class="tab-bar">
+            <button class="tab-btn active" onclick="showTab('pizza-tab')">Pizzen</button>
+            <button class="tab-btn" onclick="showTab('others-tab')">Kebap / Salate</button>
+        </div>
+
+
+
+        <div id="pizza-tab" class="tab-content active">
+            <section class="menu-section">
+                <div class="menu-grid">
+                    <button class="pizza-btn" onclick="openExtraModal('Margherita')">Margherita</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Diavolo')">Diavolo</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Dilara')">Dilara</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Pros. Funghi')">Pros. Funghi</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Tonno')">Tonno</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Capricciosa')">Capricciosa</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Calzone')">Calzone</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Salatpizza')">Salatpizza</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Hauspizza')">Hauspizza</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Funghi')">Funghi</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Quattro Form.')">Quattro Form.</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Frutti di Mare')">Frutti di Mare</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Siziliana')">Siziliana</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Hawaii')">Hawaii</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Quattro Stat.')">Quattro Stat.</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Mister')">Mister</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Gorgonzola')">Gorgonzola</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Mexicana')">Mexicana</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Hansi')">Hansi</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Alis Pizza')">Alis Pizza</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Tyrolia')">Tyrolia</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Regina')">Regina</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Vegetaria')">Vegetaria</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Pizzabrot')">Pizzabrot</button>
+                </div>
+            </section>
+        </div>
+
+        <div id="others-tab" class="tab-content">
+            <section class="menu-section">
+                <div class="menu-grid">
+                    <button class="pizza-btn" onclick="openExtraModal('Kebap')">Kebap</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Kebap spez.')">Kebap spez.</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Kebap veg.')">Kebap veg.</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Kebap Teller (Salat)')">Kebap Teller (S)</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Kebap Teller (Pommes)')">Kebap Teller (P)</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Dürüm')">Dürüm</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Dürüm spez.')">Dürüm spez.</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Dürüm veg.')">Dürüm veg.</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Kebapfleisch')">Kebapfleisch</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Pommes')">Pommes</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Loaded Pommes')">Loaded Pommes</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Loaded Pommes spez.')">L. Pommes spez.</button>
+                </div>
+                <div class="menu-grid">
+                    <button class="pizza-btn" onclick="openExtraModal('Fitnesssalat')">Fitnesssalat</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Griechischer Salat')">Griechischer</button>
+                    <button class="pizza-btn" onclick="openExtraModal('Gemischter Salat')">Gemischter Salat</button>
+                </div>
+            </section>
+        </div>
+
+        <div class="fixed-footer">
+            <section class="time-section">
+                <div class="time-grid">
+                    <button class="time-btn" onclick="setTime(15)">15m</button>
+                    <button class="time-btn" onclick="setTime(20)">20m</button>
+                    <button class="time-btn active" id="default-time" onclick="setTime(30)">30m</button>
+                    <button class="time-btn" onclick="setTime(45)">45m</button>
+                    <input type="time" id="custom-time" class="time-input" onchange="setCustomTime()">
+                </div>
+            </section>
+
+            <section class="order-section">
+                <div class="order-box">
+                    <ul id="order-list"></ul>
+                    <div id="empty-msg">Bestellung leer</div>
+                </div>
+                <div class="action-buttons">
+                    <button class="undo-btn" onclick="undoLast()">⬅ RÜCK</button>
+                    <button class="clear-btn" onclick="clearOrder()">LÖSCHEN</button>
+                    <button class="send-btn" onclick="sendToKitchen()">KÜCHE SENDEN</button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        const zutatenListe = ["Kleine Pizza", "Knoblauchöl", "Scharf", "Joghurtsauce", "Zwiebeln", "Käse", "Kebapfleisch", "Thunfisch", "Schinken", "Salami", "Oliven", "Pilze", "Salat", "Tomaten", "Ei", "Meeresfrüchte"];
+        let currentOrder = [];
+        let tempItem = "";
+        let zutatenStatus = {};
+        let selectedPickupTime = "";
+
+        // TAB LOGIC
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // MODAL LOGIC
+        function openExtraModal(itemName) {
+            tempItem = itemName;
+            zutatenStatus = {}; 
+            zutatenListe.forEach(z => zutatenStatus[z] = 0);
+            document.getElementById('modal-title').innerText = itemName + " anpassen";
+            renderZutaten();
+            document.getElementById('extra-modal').style.display = "flex";
+        }
+
+        function renderZutaten() {
+            const container = document.getElementById('zutaten-container');
+            container.innerHTML = "";
+            zutatenListe.forEach(zutat => {
+                const btn = document.createElement('button');
+                btn.className = "btn-opt";
+                if (zutatenStatus[zutat] === 1) btn.classList.add('active-extra');
+                if (zutatenStatus[zutat] === 2) btn.classList.add('active-without');
+                btn.innerText = zutat;
+                btn.onclick = () => { zutatenStatus[zutat] = (zutatenStatus[zutat] + 1) % 3; renderZutaten(); };
+                container.appendChild(btn);
+            });
+        }
+
+        function confirmItem() {
+            let extras = [], without = [];
+            for (let z in zutatenStatus) {
+                if (zutatenStatus[z] === 1) extras.push(z);
+                if (zutatenStatus[z] === 2) without.push(z);
+            }
+            let res = tempItem;
+            let det = [];
+            if (extras.length > 0) det.push("+" + extras.join(", "));
+            if (without.length > 0) det.push("-" + without.join(", "));
+            if (det.length > 0) res += " (" + det.join(" | ") + ")";
+            currentOrder.push(res);
+            updateDisplay();
+            closeModal();
+        }
+
+        function closeModal() { document.getElementById('extra-modal').style.display = "none"; }
+
+        // Anzeige & Time
+        window.onload = () => setTime(30);
+        function setTime(m) {
+            document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+            if(event) event.target.classList.add('active');
+            let n = new Date(); n.setMinutes(n.getMinutes() + m);
+            selectedPickupTime = n.getHours().toString().padStart(2, '0') + ":" + n.getMinutes().toString().padStart(2, '0');
+        }
+        function setCustomTime() { selectedPickupTime = document.getElementById('custom-time').value; }
+        
+        function updateDisplay() {
+            const list = document.getElementById('order-list');
+            const msg = document.getElementById('empty-msg');
+            list.innerHTML = "";
+            msg.style.display = currentOrder.length === 0 ? "block" : "none";
+            currentOrder.forEach(i => { const li = document.createElement('li'); li.textContent = i; list.appendChild(li); });
+        }
+
+        function undoLast() { currentOrder.pop(); updateDisplay(); }
+        function clearOrder() { currentOrder = []; updateDisplay(); }
+        function sendToKitchen() {
+            if (currentOrder.length === 0) return alert("Bestellung leer!");
+            alert("Bestellung für " + selectedPickupTime + " gesendet!");
+            clearOrder();
+        }
+    </script>
+</body>
+</html>
