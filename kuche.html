@@ -21,6 +21,30 @@
     </div>
 
     <script type="module">
+
+    // --- ZUGRIFFSSCHUTZ START ---
+    const SECRET_PASSWORD = "AG23"; // Ändere das Passwort hier!
+
+    function checkAuth() {
+        // Prüfen, ob das iPad schon einmal freigeschaltet wurde
+        if (localStorage.getItem("pos_authorized") === "true") {
+            return; 
+        }
+
+        // Wenn nicht, Passwort abfragen
+        const pw = prompt("Zugriff geschützt. Passwort eingeben:");
+        if (pw === SECRET_PASSWORD) {
+            localStorage.setItem("pos_authorized", "true");
+        } else {
+            alert("Falsches Passwort!");
+            document.body.innerHTML = "<h1 style='color:white; text-align:center; margin-top:50px;'>Kein Zugriff für Unbefugte.</h1>";
+            window.location.href = "https://google.com";
+        }
+    }
+
+    checkAuth();
+    // --- ZUGRIFFSSCHUTZ ENDE ---
+
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
         import { getFirestore, collection, query, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
