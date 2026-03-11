@@ -46,7 +46,7 @@
         <div id="pizza-tab" class="tab-content">
             <div class="menu-grid">
                 <script>
-                    const pizzen = ['Margherita', 'Diavolo', 'Dilara', 'Prosciutto Funghi', 'Tonno', 'Capricciosa', 'Calzone', 'Salatpizza', 'Hauspizza', 'Funghi', 'Quattro Formaggi', 'Frutti di Mare', 'Siziliana', 'Hawaii', 'Quattro Stagioni', 'Mister', 'Gorgonzola', 'Mexicana', 'Hansi', 'Alis Pizza', 'Tyrolia', 'Regina', 'Vegetaria', 'Pizzabrot'];
+                    const pizzen = ['Margherita', 'Diavolo', 'Dilara', 'Prosciutto Funghi', 'Tonno', 'Salami', 'Capricciosa', 'Calzone', 'Salatpizza (Calzone)', 'Hauspizza', 'Funghi', 'Quattro Formaggio', 'Frutti di Mare', 'Siziliana', 'Hawaii', 'Quattro Stagioni', 'Mister', 'Gorgonzola', 'Mexicana', 'Hansi', 'Alis Pizza', 'Tyrolia', 'Regina', 'Vegetaria', 'Pizzabrot'];
                     pizzen.forEach(p => document.write(`<button class="pizza-btn" onclick="openExtraModal('${p}')">${p}</button>`));
                 </script>
             </div>
@@ -55,7 +55,7 @@
         <div id="others-tab" class="tab-content" style="display:none;">
             <div class="menu-grid">
                 <script>
-                    const others = ['Kebap', 'Kebap spezial', 'Kebap vegetarisch', 'Kebap Teller (Salat)', 'Kebap Teller (Pommes)', 'Dürüm', 'Dürüm spezial', 'Dürüm vegetarisch', 'Kebapfleisch', 'Pommes', 'Loaded Pommes', 'Loaded Pommes spezial', 'Fitnesssalat', 'Griechischer Salat', 'Gemischter Salat'];
+                    const others = ['Kebap', 'Kebap spezial', 'Kebap vegetarisch', 'Kebap Teller (Salat)', 'Kebap Teller (Pommes)', 'Dürüm', 'Dürüm spezial', 'Dürüm vegetarisch', 'Portion Kebapfleisch', 'Pommes', 'Loaded Pommes', 'Loaded Pommes spezial', 'Fitnesssalat', 'Griechischer Salat', 'Gemischter Salat'];
                     others.forEach(o => document.write(`<button class="pizza-btn" onclick="openExtraModal('${o}')">${o}</button>`));
                 </script>
             </div>
