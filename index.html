@@ -470,7 +470,7 @@
 
         function renderErledigte(docs) {
             const grid = document.getElementById('erledigt-grid');
-            grid.innerHTML = docs.length === 0 ? '<div style="color: white;">Keine fertigen Bestellungen.</div>' : "";
+            grid.innerHTML = docs.length === 0 ? "<p style='color:gray;'>Keine fertigen Bestellungen...</p>" : "";
 
             docs.forEach((data) => {
                 
