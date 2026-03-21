@@ -1,6 +1,7 @@
 :root {
     --primary-red: #d32f2f;
     --bg-gray: #f0f2f5;
+    --card-bg: #ffffff;
     --active-blue: #3498db;
     --success-green: #27ae60;
     --warning-orange: #f39c12;
@@ -73,7 +74,7 @@ h1 { color: var(--primary-red); margin: 0; font-size: 1.4rem; text-transform: up
 }
 
 .order-number-badge {
-    background: var(--text-dark); color: white; padding: 5px 12px;
+    background: var(--text-dark); color: white; padding: 5px 15px;
     border-radius: 20px; font-weight: bold; font-size: 0.9rem;
 }
 
@@ -148,6 +149,27 @@ h1 { color: var(--primary-red); margin: 0; font-size: 1.4rem; text-transform: up
     overflow-y: auto;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
+
+
+.monitor-modal { 
+    display: none; position: fixed; z-index: 1000; left: 0; top: 0; 
+    width: 100%; height: 100%; background: rgba(0,0,0,0.7); 
+    justify-content: center; align-items: center; 
+}
+.monitor-modal-content {
+    margin: auto;
+    padding: 25px;
+    border-radius: 20px;
+    min-width: 90%; 
+    height: 80%; 
+    background: #121212; 
+    color: white;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: row;
+}
+
 .quick-options { display: flex; gap: 12px; margin-bottom: 20px; }
 .opt-toggle-btn { flex: 1; padding: 18px; font-size: 0.9rem !important; font-weight: bold; border: 2px solid #ddd; border-radius: 12px; background: #f9f9f9; cursor: pointer; }
 
@@ -181,7 +203,8 @@ h1 { color: var(--primary-red); margin: 0; font-size: 1.4rem; text-transform: up
 /* Spezielles Design für den Monitor-Button (identisch zur Ticket-Badge) */
 .monitor-badge-btn {
     color: --text-dark;
-    padding: 10px 10px;
+    font-size: 1.1rem;
+    padding: 10px 30px;
     border: 1px solid #ccc; 
     border-radius: 10px; 
     font-weight: bold; 
@@ -196,3 +219,104 @@ h1 { color: var(--primary-red); margin: 0; font-size: 1.4rem; text-transform: up
     background: #333; /* Leichtes Feedback beim Drücken */
 }
 
+
+/* --- MITTLERER BEREICH: Abholbereite Bestellungen --- */
+.erledigt {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 5px; 
+    overflow: hidden;
+    border-right: 2px solid #333;
+    border-left: 2px solid #333;
+}
+
+.erledigt h2 {
+    color: var(--success-green);
+    font-size: 1rem;
+    text-align: center;
+    text-transform: uppercase;
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #333;
+}
+
+#erledigt-grid {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap; /* Behält deine Wunsch-Sortierung bei: Oben -> Unten, dann Rechts */
+    align-content: flex-start;
+    gap: 10px; 
+    flex-grow: 1;
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
+
+/* --- LINKER und RECHTER BEREICH: Offene und Archivierte --- */
+.offene-sidebar, .archiv-sidebar {
+    width: 280px; 
+    background: var(--bg-sidebar);
+    display: flex;
+    flex-direction: column;
+    padding: 5px;
+    overflow-y: auto;
+}
+
+.offene-sidebar h2, .archiv-sidebar h2 {
+    font-size: 1rem;
+    text-align: center;
+    color: var(--text-gray);
+    text-transform: uppercase;
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #333;
+    }
+
+
+
+.archive-card {
+    background: var(--card-bg);
+    color: var(--text-dark);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    border-left: 5px solid #555;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    }
+
+.archive-card strong {
+    color: var(--text-dark);
+    font-size: 1.1rem;
+    }
+
+.archive-card small {
+    display: block;
+    margin: 5px 0;
+    font-size: 0.9em;
+    font-weight: 700;
+    color: var(--text-dark);
+    }
+
+.kassieren-btn {
+    width: 100%;
+    margin-top: 8px;
+    background: #f39c12;
+    color: var(--text-dark);
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    }
+
+    .pickup-time {
+    font-size: 1rem; 
+    font-weight: bold;
+    color: var(--text-dark);
+    background: #f39d124d;
+    padding: 2px 5px;
+    border-radius: 4px;
+}

@@ -167,6 +167,9 @@
             });
         }
 
+
+
+        
         window.setStatus = async (id, newStatus) => {
             try {
                 await updateDoc(doc(db, "bestellungen", id), { status: newStatus });

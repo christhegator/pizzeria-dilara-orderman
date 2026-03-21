@@ -20,6 +20,10 @@
         <div id="history-list"></div>
     </div>
 
+
+
+
+
     <script type="module">
 
     // --- ZUGRIFFSSCHUTZ START ---
@@ -67,10 +71,10 @@
         onSnapshot(q, (snapshot) => {
             const allDocs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
             
-            currentOffene = allDocs.filter(d => d.status !== "erledigt")
+            currentOffene = allDocs.filter(d => d.status === "offen")
                                    .sort((a, b) => a.pickupTime.localeCompare(b.pickupTime));
             
-            const erledigte = allDocs.filter(d => d.status === "erledigt")
+            const erledigte = allDocs.filter(d => d.status !== "offen")
                                      .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
             renderOffene(currentOffene);
