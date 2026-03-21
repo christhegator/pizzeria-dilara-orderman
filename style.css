@@ -2,11 +2,13 @@
     --primary-red: #d32f2f;
     --bg-gray: #f0f2f5;
     --card-bg: #ffffff;
+    --archive-card-bg: #2a2a2a;
     --active-blue: #3498db;
     --success-green: #27ae60;
     --warning-orange: #f39c12;
     --danger-red: #e74c3c;
     --text-dark: #333;
+    --text-gray: #888;
 }
 
 body {
@@ -151,23 +153,57 @@ h1 { color: var(--primary-red); margin: 0; font-size: 1.4rem; text-transform: up
 }
 
 
-.monitor-modal { 
-    display: none; position: fixed; z-index: 1000; left: 0; top: 0; 
-    width: 100%; height: 100%; background: rgba(0,0,0,0.7); 
-    justify-content: center; align-items: center; 
+.monitor-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7);
+    justify-content: center;
+    align-items: center;
 }
+
 .monitor-modal-content {
-    margin: auto;
-    padding: 25px;
-    border-radius: 20px;
-    min-width: 90%; 
-    height: 80%; 
-    background: #121212; 
-    color: white;
-    overflow-y: auto;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    background: #121212;
+    width: 95%;
+    height: 90vh;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column; /* Stapelt Spalten oben, Button unten */
+    padding: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+/* Dieser Container hält die 3 Spalten nebeneinander */
+.monitor-columns-container {
     display: flex;
     flex-direction: row;
+    flex-grow: 1; /* Nimmt den gesamten verfügbaren Platz ein */
+    gap: 15px;
+    overflow: hidden; /* Verhindert, dass die ganze Box scrollt */
+}
+
+/* Der Footer-Bereich für den Button */
+.monitor-footer {
+    text-align: center;
+    padding-top: 15px;
+}
+
+.close-monitor-btn {
+    padding: 12px 100px;
+    background: #d32f2f;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+.close-monitor-btn:active {
+    transform: scale(0.95);
+    background: #b71c1c;
 }
 
 .quick-options { display: flex; gap: 12px; margin-bottom: 20px; }
@@ -249,7 +285,7 @@ h1 { color: var(--primary-red); margin: 0; font-size: 1.4rem; text-transform: up
     gap: 10px; 
     flex-grow: 1;
     overflow-x: auto;
-    padding-bottom: 10px;
+    padding-left: 10px;
 }
 
 /* --- LINKER und RECHTER BEREICH: Offene und Archivierte --- */
@@ -273,36 +309,79 @@ h1 { color: var(--primary-red); margin: 0; font-size: 1.4rem; text-transform: up
     }
 
 
-
-.archive-card {
+/* --- DIE OFFENE BON-KARTE --- */
+.order-card {
     background: var(--card-bg);
     color: var(--text-dark);
     border-radius: 8px;
+    padding: 10px; /* Reduziert von 15px */
+    width: 260px; /* Schmaler als 320px */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    border-left: 6px solid var(--accent-red); 
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.order-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+}
+
+.offen-card, .archive-card {
+    border-radius: 8px;
     padding: 10px;
-    margin-bottom: 10px;
     font-size: 0.9rem;
-    border-left: 5px solid #555;
     box-shadow: 0 4px 8px rgba(0,0,0,0.5);
     }
 
-.archive-card strong {
+.offen-card {
+    background: var(--card-bg);
+    color: var(--text-dark);
+    border-left: 5px solid #f39c12;
+}
+
+.archive-card {
+    background: var(--archive-card-bg);
+    color: white;
+    border-left: 5px solid #555;
+}
+
+.offen-card strong, .archive-card strong {
     color: var(--text-dark);
     font-size: 1.1rem;
-    }
+}
 
-.archive-card small {
+.offen-card small, .archive-card small {
     display: block;
     margin: 5px 0;
     font-size: 0.9em;
     font-weight: 700;
     color: var(--text-dark);
-    }
+}
+
+.offen-card small {
+    color: var(--text-dark);
+}
+
+.archive-card small {
+    color: var(--text-gray);
+}
 
 .kassieren-btn {
     width: 100%;
     margin-top: 8px;
     background: #f39c12;
-    color: var(--text-dark);
+    color: white;
     border: none;
     padding: 6px;
     cursor: pointer;
@@ -310,13 +389,115 @@ h1 { color: var(--primary-red); margin: 0; font-size: 1.4rem; text-transform: up
     font-size: 0.9rem;
     font-weight: bold;
     text-transform: uppercase;
-    }
+}
 
-    .pickup-time {
+.archiv-undo-btn {
+    width: 100%;
+    margin-top: 8px;
+    background: #555;
+    color: white;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.erledigt-btn {
+    width: 100%;
+    margin-top: 8px;
+    background: var(--success-green);
+    color: white;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.undo-erledigt-btn {
+    width: 100%;
+    margin-top: 8px;
+    background: var(--danger-red);
+    color: white;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.pickup-time {
     font-size: 1rem; 
     font-weight: bold;
     color: var(--text-dark);
-    background: #f39d124d;
+    background: #ececec;
     padding: 2px 5px;
     border-radius: 4px;
 }
+
+.pickup-time-archive {
+    font-size: 1rem; 
+    font-weight: bold;
+    color: var(--text-gray);
+    padding: 2px 5px;
+    border-radius: 4px;
+}
+
+
+/* Artikelliste im Bon */
+.item-block {
+    padding: 4px 0; /* Deutlich kompakter als 10px */
+    list-style-type: none; /* Doppelte Absicherung */
+    border-bottom: 1px solid #f9f9f9;
+}
+
+.item-main-name {
+    font-size: 1.0rem; /* Reduziert von 1.4rem */
+    font-weight: 700;
+    color: #000;
+}
+
+.item-props {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #5a5a5a;
+    margin-left: 4px;
+}
+
+.item-extra {
+    font-size: 0.9rem; /* Kleiner als 1.1rem */
+    margin-left: 10px;
+    margin-top: 2px;
+}
+
+.item-extra span {
+    font-weight: bold;
+    font-size: 0.7rem;
+    display: inline-block;
+    width: 35px; /* Schmaleres Label */
+}
+
+.mit span { color: var(--success-green); }
+.ohne span { color: var(--accent-red); }
+
+.ticket-num {
+    font-size: 1.1rem; /* Reduziert von 2.2rem */
+    font-weight: 900;
+    color: var(--accent-red);
+    line-height: 1;
+}
+
+
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #1a1a1a; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #444; }

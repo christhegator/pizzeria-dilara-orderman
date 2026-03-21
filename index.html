@@ -27,24 +27,29 @@
 
     <div id="monitor-modal" class="monitor-modal">
         <div class="monitor-modal-content">
-            <div class="offene-sidebar">
-                <h2>Noch in Arbeit</h2>
-                <div id="offene-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; max-height: 70vh; overflow-y: auto; padding: 15px;"></div>
-            </div> 
-        
-            <div class="erledigt">
-                <h2>Erledigte Bestellungen</h2>
-                <div id="erledigt-grid">
-                    <div class="no-orders"><p>Keine fertigen Bestellungen.</p><p>Küche muss schneller arbeiten...</p></div>
+            <!-- Bereich für die 3 Spalten -->
+            <div class="monitor-columns-container">     
+            
+                <div class="offene-sidebar">
+                    <h2>Noch in Arbeit</h2>
+                    <div id="offene-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; overflow-y: auto; padding: 0px 7px;"></div>
+                </div> 
+                
+                <div class="erledigt">
+                    <h2>Erledigte Bestellungen</h2>
+                    <div id="erledigt-grid"></div>
+                </div>
+
+                <div class="archiv-sidebar">
+                    <h2>Archiv</h2>
+                    <div id="archiv-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; overflow-y: auto; padding: 0px 7px;"></div>
                 </div>
             </div>
 
-            <div class="archiv-sidebar">
-                <h2>Archiv</h2>
-                <div id="archiv-list"></div>
-                <button onclick="closeMonitor()" style="padding:10px 20px; background: #d32f2f; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">SCHLIESSEN</button>
+            <!-- Der Button bleibt jetzt INNERHALB von monitor-modal-content -->
+            <div class="monitor-footer">
+                <button onclick="closeMonitor()" class="close-monitor-btn">SCHLIESSEN</button>
             </div>
-            
         </div>
     </div>
 
@@ -428,11 +433,11 @@
                 
                 // 2. ERLEDIGT: Alles was bereit zum Abholen ist
                 const erledigte = allDocs.filter(d => d.status === "erledigt")
-                                        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                                    .sort((a, b) => a.pickupTime.localeCompare(b.pickupTime));
 
                 // 3. ARCHIVIERT: Alles was bereits abgeholt wurde
                 const archiviert = allDocs.filter(d => d.status === "archiviert")
-                                        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                                    .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
                 renderOffene(offene);
                 renderErledigte(erledigte);
@@ -449,11 +454,13 @@
             docs.forEach(data => {
                 const itemNames = data.items.map(i => typeof i === 'object' ? i.name : i).join(", ");
                 const div = document.createElement('div');
-                div.className = "archive-card"; 
+                div.className = "offen-card"; 
                 div.style.borderLeft = "5px solid #f39c12"; // Orange für Arbeit
                 div.innerHTML = `
-                    <strong>#${data.ticketNum}</strong> 
-                    <span class="pickup-time">${data.pickupTime}</span>
+                    <div class="order-card-header">
+                        <span class="ticket-num">#${data.ticketNum}</span>
+                        <span class="pickup-time">${data.pickupTime}</span>
+                    </div>
                     <small>${itemNames}</small>
                     <button class="kassieren-btn" onclick="setStatus('${data.id}', 'erledigt')">KASSIEREN</button>
                 `;
@@ -463,29 +470,43 @@
 
         function renderErledigte(docs) {
             const grid = document.getElementById('erledigt-grid');
-            grid.innerHTML = docs.length === 0 ? '<div class="no-orders"><p>Keine fertigen Bestellungen.</p></div>' : "";
+            grid.innerHTML = docs.length === 0 ? '<div style="color: white;">Keine fertigen Bestellungen.</div>' : "";
 
             docs.forEach((data) => {
+                
+                // --- ARTIKEL LOGIK (OBJEKT-STRUKTUR) ---
                 const itemsHtml = data.items.map(item => {
-                    if (typeof item === 'object') {
+                    // Prüfen, ob das Item ein Objekt ist (neue Logik)
+                    if (typeof item === 'object' && item !== null) {
                         const propText = item.props && item.props.length > 0 ? ` (${item.props.join(", ")})` : "";
-                        return `<li class="item-block"><strong>${item.name}</strong>${propText}</li>`;
+                        
+                        return `
+                            <li class="item-block">
+                                <div class="item-main-name">
+                                    ${item.name}<span class="item-props">${propText}</span>
+                                </div>
+                                ${item.add && item.add.length > 0 ? `<div class="item-extra mit"><span>MIT:</span> ${item.add.join(", ")}</div>` : ''}
+                                ${item.remove && item.remove.length > 0 ? `<div class="item-extra ohne"><span>OHNE:</span> ${item.remove.join(", ")}</div>` : ''}
+                            </li>
+                        `;
+                    } 
+                    // Fallback für alte Text-Bestellungen
+                    else {
+                        return `<li class="item-block"><div class="item-main-name">${item}</div></li>`;
                     }
-                    return `<li class="item-block">${item}</li>`;
                 }).join("");
 
                 const card = document.createElement('div');
                 card.className = "order-card"; // Die große weiße Karte aus dem Küchen-Monitor
-                card.style.width = "100%"; // Damit sie in die Spalte passt
                 card.innerHTML = `
-                    <div class="order-header">
+                    <div class="order-card-header">
                         <span class="ticket-num">#${data.ticketNum}</span>
                         <span class="pickup-time">${data.pickupTime}</span>
                     </div>
                     <ul class="items-list">${itemsHtml}</ul>
                     <div style="display:flex; gap:5px;">
-                        <button class="done-btn" style="flex:2;" onclick="setStatus('${data.id}', 'archiviert')">✅ ABGEHOLT</button>
-                        <button class="undo-btn" style="flex:1; background:#999;" onclick="setStatus('${data.id}', 'offen')">↩</button>
+                        <button class="erledigt-btn" style="flex:9;" onclick="setStatus('${data.id}', 'archiviert')">✅ Bezahlt</button>
+                        <button class="undo-erledigt-btn" style="flex:1;" onclick="setStatus('${data.id}', 'offen')">↩</button>
                     </div>
                 `;
                 grid.appendChild(card);
@@ -496,14 +517,15 @@
             const list = document.getElementById('archiv-list');
             list.innerHTML = docs.length === 0 ? "<p style='color:gray;'>Leer</p>" : "";
             
-            docs.slice(0, 10).forEach(data => {
+            docs.slice(0, 15).forEach(data => {
+                const itemNames = data.items.map(i => typeof i === 'object' ? i.name : i).join(", ");
                 const div = document.createElement('div');
                 div.className = "archive-card";
-                div.style.opacity = "0.6"; // Leicht transparent, da erledigt
                 div.innerHTML = `
-                    <strong>#${data.ticketNum}</strong> 
-                    <span class="pickup-time">${data.pickupTime}</span>
-                    <button class="undo-btn" onclick="setStatus('${data.id}', 'erledigt')">ZURÜCK</button>
+                        <span class="ticket-num">#${data.ticketNum}</span>
+                        <span class="pickup-time-archive">${data.pickupTime}</span>
+                    <small>${itemNames}</small>
+                    <button class="archiv-undo-btn" onclick="setStatus('${data.id}', 'erledigt')">Rückgängig ↩</button>
                 `;
                 list.appendChild(div);
             });

@@ -74,7 +74,7 @@
             currentOffene = allDocs.filter(d => d.status === "offen")
                                    .sort((a, b) => a.pickupTime.localeCompare(b.pickupTime));
             
-            const erledigte = allDocs.filter(d => d.status !== "offen")
+            const erledigte = allDocs.filter(d => d.status === "erledigt")
                                      .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
             renderOffene(currentOffene);
