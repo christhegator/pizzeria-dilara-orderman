@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pizzeria Dilara POS</title>
+    <title>Pizzeria Dilara Kassa</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+</fieldset>
     <div id="extra-modal" class="modal">
         <div class="modal-content">
             <h2 id="modal-title" style="margin-top:0;">Anpassen</h2>
@@ -151,7 +152,7 @@
     // --- ZUGRIFFSSCHUTZ ENDE ---
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, serverTimestamp, query, onSnapshot } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, query, onSnapshot, where, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB91SjJooMeFzG00w8sBdT8XUOk1PW9fIM",
@@ -162,8 +163,61 @@
             appId: "1:481636272797:web:f4be0b2a3c597966b9a274"
         };
 
+        // Initialisierung
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+
+        // Clean-up von alten, archivierten Bestellungen
+        async function cleanupOldOrders() {
+            const twoDaysAgo = new Date();
+            twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+            
+            console.log("Suche alles vor:", twoDaysAgo.toLocaleString());
+
+            // Wir filtern erst mal nur nach Status, um sicherzugehen
+            const q = query(
+                collection(db, "bestellungen"),
+                where("status", "==", "archiviert")
+            );
+
+            const querySnapshot = await getDocs(q);
+            
+            querySnapshot.forEach(async (docSnap) => {
+                const data = docSnap.data();
+                let shouldDelete = false;
+
+                // Sicherer Datums-Check im Code statt in der Query
+                if (data.createdAt) {
+                    // Falls es ein Firebase Timestamp ist, umwandeln. Sonst normales Date.
+                    const dateValue = data.createdAt.toDate ? data.createdAt.toDate() : new Date(data.createdAt);
+                    
+                    if (dateValue < twoDaysAgo) {
+                        shouldDelete = true;
+                    }
+                } else {
+                    // Wenn gar kein Datum da ist, löschen wir es zur Sicherheit auch (Datenmüll)
+                    shouldDelete = true; 
+                }
+
+                if (shouldDelete) {
+                    console.log("Lösche altes Archiv-Dokument:", docSnap.id);
+                    await deleteDoc(doc(db, "bestellungen", docSnap.id));
+                }
+            });
+        }
+
+        // Cleanup beim Start der App ausführen
+        cleanupOldOrders();
+
+        // Prüft jede Stunde, ob es 5 Uhr morgens ist, und lädt dann die Seite neu
+        setInterval(() => {
+            const jetzt = new Date();
+            if (jetzt.getHours() === 5 && jetzt.getMinutes() === 0) {
+                console.log("Täglicher Neustart für Cleanup und Updates...");
+                location.reload(); 
+            }
+        }, 60000); // Check alle 60 Sekunden
+
 
         const zutatenListe = ["Knoblauchöl", "Joghurtsauce", "Zwiebeln", "Käse", "Schafskäse", "Gorgonzola", "Kebapfleisch", "Thunfisch", "Schinken", "Salami", "Mais", "Oliven", "Pilze", "Ruccola", "Salat", "Tomaten", "Artischoken", "Ei", "Meeresfrüchte"];
         
