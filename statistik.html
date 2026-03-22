@@ -24,7 +24,7 @@
         <!-- Sektion Pizzen -->
         <div class="category-section">
             <div class="category-header">
-                <span>Pizzen Gesamt</span>
+                <span>Pizzen</span>
                 <span id="total-pizzen" class="main-count">0</span>
             </div>
             <div id="pizzen-list"></div>
@@ -33,7 +33,7 @@
         <!-- Sektion Kebap & Dürüm -->
         <div class="category-section">
             <div class="category-header">
-                <span>Kebap & Dürüm Gesamt</span>
+                <span>Kebap & Dürüm</span>
                 <span id="total-kebap" class="main-count">0</span>
             </div>
             <div id="kebap-list"></div>
@@ -42,7 +42,7 @@
         <!-- Sektion Andere -->
         <div class="category-section">
             <div class="category-header">
-                <span>Pommes & Salate Gesamt</span>
+                <span>Pommes & Salate</span>
                 <span id="total-others" class="main-count">0</span>
             </div>
             <div id="others-list"></div>
@@ -64,6 +64,33 @@
 </div>
 
 <script type="module">
+
+    // --- ZUGRIFFSSCHUTZ START ---
+    const SECRET_PASSWORD = "AG23"; 
+
+    function checkAuth() {
+        // Prüfen, ob das iPad schon einmal freigeschaltet wurde
+        if (localStorage.getItem("pos_authorized") === "true") {
+            return; 
+        }
+
+        // Wenn nicht, Passwort abfragen
+        const pw = prompt("Zugriff geschützt. Passwort eingeben:");
+        if (pw === SECRET_PASSWORD) {
+            localStorage.setItem("pos_authorized", "true");
+        } else {
+            alert("Falsches Passwort!");
+            // Hier auf Schwarz geändert, da dein Statistik-Hintergrund hell ist
+            document.body.innerHTML = "<h1 style='color:black; text-align:center; margin-top:50px;'>Kein Zugriff für Unbefugte.</h1>";
+            window.location.href = "https://google.com";
+            throw new Error("Zugriff verweigert"); // Stoppt das restliche Skript
+        }
+    }
+
+    // Erst prüfen, dann Rest laden
+    checkAuth();
+    // --- ZUGRIFFSSCHUTZ ENDE ---
+
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
     import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
@@ -81,6 +108,7 @@
 
     const pizzaNames = ['Margherita', 'Diavolo', 'Dilara', 'Prosciutto Funghi', 'Tonno', 'Salami', 'Capricciosa', 'Calzone', 'Salatpizza (Calzone)', 'Hauspizza', 'Funghi', 'Quattro Formaggio', 'Frutti di Mare', 'Siziliana', 'Hawaii', 'Quattro Stagioni', 'Mister', 'Gorgonzola', 'Mexicana', 'Hansi', 'Alis Pizza', 'Tyrolia', 'Regina', 'Vegetaria', 'Pizzabrot'];
     const kebapNames = ['Kebap', 'Kebap spezial', 'Kebap vegetarisch', 'Kebap Teller (Salat)', 'Kebap Teller (Pommes)', 'Dürüm', 'Dürüm spezial', 'Dürüm vegetarisch', 'Portion Kebapfleisch'];
+    const otherNames = ['Pommes', 'Loaded Pommes', 'Loaded Pommes spezial', 'Fitnesssalat', 'Griechischer Salat', 'Gemischter Salat'];
 
     let globalStats = {};
 
@@ -150,6 +178,8 @@
         }
     }
 
+
+
     function renderCategorizedList(elementId, filterList, allStats, categoryTotal, isOthers = false) {
         const container = document.getElementById(elementId);
         const filteredNames = Object.keys(allStats).filter(name => 
@@ -174,12 +204,51 @@
     }
 
     window.exportToCSV = function() {
-        let csvContent = "data:text/csv;charset=utf-8,Gericht;Anzahl\n";
-        Object.keys(globalStats).forEach(key => { csvContent += `${key};${globalStats[key]}\n`; });
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        const timeStr = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+        // 1. Kopfbereich mit Metadaten (Datum und Zeit des Exports)
+        // Wir nutzen das Semikolon (;) als Trenner für Excel
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += `Datum;${dateStr}\n`;
+        csvContent += `Zeit;${timeStr}\n`;
+        csvContent += `\n`; // Eine Leerzeile zur besseren Übersicht in Excel
+        
+        // 2. Spaltenüberschriften für die Daten
+        csvContent += "Kategorie;Gericht;Anzahl\n";
+
+        // Hilfsfunktion für den Export einer festen Liste
+        const addFixedRows = (category, nameList) => {
+            nameList.forEach(name => {
+                const count = globalStats[name] || 0;
+                csvContent += `${category};${name};${count}\n`;
+            });
+        };
+
+        // 3. Export der drei festen Kategorien (Reihenfolge bleibt IMMER gleich)
+        addFixedRows("1_Pizza", pizzaNames);
+        addFixedRows("2_Kebap_Duerum", kebapNames);
+        addFixedRows("3_Pommes_Salate", otherNames);
+
+        // 4. Sicherheitsnetz für unbekannte Gerichte
+        Object.keys(globalStats).forEach(name => {
+            if (!pizzaNames.includes(name) && 
+                !kebapNames.includes(name) && 
+                !otherNames.includes(name)) {
+                csvContent += `4_Unbekannt;${name};${globalStats[name]}\n`;
+            }
+        });
+
+        // 5. Download-Logik
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `Tagesbericht_${new Date().toLocaleDateString()}.csv`);
+        
+        // Dateiname für die Datei (Pizzeria_Dilara_dd_mm_yyyy.csv)
+        const fileDate = dateStr.replaceAll('.', '_');
+        link.setAttribute("download", `${fileDate}_Tagesbericht.csv`);
+        
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
