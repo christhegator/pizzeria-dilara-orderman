@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tagesauswertung - Pizzeria Dilara</title>
+    <link rel="stylesheet" href="style-statistik.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>
+        Tagesbericht 
+        <div class="timestamp-container">
+            <span id="current-date"></span>
+            <span id="load-time"></span>
+        </div>
+    </h1>
+    
+    <div id="loading">Daten werden live berechnet...</div>
+
+    <div id="stats-content" style="display:none;">
+        
+        <!-- Sektion Pizzen -->
+        <div class="category-section">
+            <div class="category-header">
+                <span>Pizzen Gesamt</span>
+                <span id="total-pizzen" class="main-count">0</span>
+            </div>
+            <div id="pizzen-list"></div>
+        </div>
+
+        <!-- Sektion Kebap & Dürüm -->
+        <div class="category-section">
+            <div class="category-header">
+                <span>Kebap & Dürüm Gesamt</span>
+                <span id="total-kebap" class="main-count">0</span>
+            </div>
+            <div id="kebap-list"></div>
+        </div>
+
+        <!-- Sektion Andere -->
+        <div class="category-section">
+            <div class="category-header">
+                <span>Pommes & Salate Gesamt</span>
+                <span id="total-others" class="main-count">0</span>
+            </div>
+            <div id="others-list"></div>
+        </div>
+
+        <div class="total-summary">
+            Heutige Bestellungen Gesamt: <span id="total-orders">0</span>
+        </div>
+    </div>
+
+    <div class="button-group">
+        <button class="btn-refresh" id="refresh-btn" onclick="refreshData()">
+            🔄 Daten aktualisieren
+        </button>
+        <button class="btn-export" onclick="exportToCSV()">
+            📥 Als Excel-Datei (CSV) exportieren
+        </button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyB91SjJooMeFzG00w8sBdT8XUOk1PW9fIM",
+        authDomain: "pizzeria-dilara.firebaseapp.com",
+        projectId: "pizzeria-dilara",
+        storageBucket: "pizzeria-dilara.firebasestorage.app",
+        messagingSenderId: "481636272797",
+        appId: "1:481636272797:web:f4be0b2a3c597966b9a274"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const pizzaNames = ['Margherita', 'Diavolo', 'Dilara', 'Prosciutto Funghi', 'Tonno', 'Salami', 'Capricciosa', 'Calzone', 'Salatpizza (Calzone)', 'Hauspizza', 'Funghi', 'Quattro Formaggio', 'Frutti di Mare', 'Siziliana', 'Hawaii', 'Quattro Stagioni', 'Mister', 'Gorgonzola', 'Mexicana', 'Hansi', 'Alis Pizza', 'Tyrolia', 'Regina', 'Vegetaria', 'Pizzabrot'];
+    const kebapNames = ['Kebap', 'Kebap spezial', 'Kebap vegetarisch', 'Kebap Teller (Salat)', 'Kebap Teller (Pommes)', 'Dürüm', 'Dürüm spezial', 'Dürüm vegetarisch', 'Portion Kebapfleisch'];
+
+    let globalStats = {};
+
+    window.refreshData = async function() {
+        const btn = document.getElementById('refresh-btn');
+        btn.innerText = "⏳ Lädt...";
+        btn.disabled = true;
+        
+        // Tabellen leeren, bevor neu geladen wird
+        document.getElementById('pizzen-list').innerHTML = "";
+        document.getElementById('kebap-list').innerHTML = "";
+        document.getElementById('others-list').innerHTML = "";
+        
+        await loadStats();
+        
+        btn.innerText = "🔄 Daten aktualisieren";
+        btn.disabled = false;
+    };
+
+    async function loadStats() {
+        const now = new Date();
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        
+        // Deutsches Format & Uhrzeit
+        const dateOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
+        const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+        
+        document.getElementById('current-date').innerText = now.toLocaleDateString('de-DE', dateOptions);
+        document.getElementById('load-time').innerText = " (Stand: " + now.toLocaleTimeString('de-DE', timeOptions) + " Uhr)";
+
+        try {
+            const q = query(collection(db, "bestellungen"), where("createdAt", ">=", today));
+            const snap = await getDocs(q);
+            
+            let totalBons = 0;
+            let counts = { pizzen: 0, kebap: 0, others: 0 };
+            globalStats = {};
+
+            snap.forEach(doc => {
+                totalBons++;
+                const items = doc.data().items || [];
+                items.forEach(item => {
+                    const name = typeof item === 'object' ? item.name : item;
+                    globalStats[name] = (globalStats[name] || 0) + 1;
+
+                    if(pizzaNames.includes(name)) counts.pizzen++;
+                    else if(kebapNames.includes(name)) counts.kebap++;
+                    else counts.others++;
+                });
+            });
+
+            renderCategorizedList('pizzen-list', pizzaNames, globalStats, counts.pizzen);
+            renderCategorizedList('kebap-list', kebapNames, globalStats, counts.kebap);
+            renderCategorizedList('others-list', [], globalStats, counts.others, true);
+
+            document.getElementById('total-pizzen').innerText = counts.pizzen;
+            document.getElementById('total-kebap').innerText = counts.kebap;
+            document.getElementById('total-others').innerText = counts.others;
+            document.getElementById('total-orders').innerText = totalBons;
+            
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('stats-content').style.display = 'block';
+        } catch (error) {
+            console.error(error);
+            document.getElementById('loading').innerText = "Fehler beim Laden.";
+        }
+    }
+
+    function renderCategorizedList(elementId, filterList, allStats, categoryTotal, isOthers = false) {
+        const container = document.getElementById(elementId);
+        const filteredNames = Object.keys(allStats).filter(name => 
+            isOthers ? (!pizzaNames.includes(name) && !kebapNames.includes(name)) : filterList.includes(name)
+        ).sort((a, b) => allStats[b] - allStats[a]); // Sortiert nach Häufigkeit
+
+        filteredNames.forEach(name => {
+            const count = allStats[name];
+            const percentage = categoryTotal > 0 ? Math.round((count / categoryTotal) * 100) : 0;
+            
+            container.innerHTML += `
+                <div class="item-stat-row">
+                    <div class="item-info">
+                        <span class="item-name">${name}</span>
+                        <span class="item-count">${count}x (${percentage}%)</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${percentage}%"></div>
+                    </div>
+                </div>`;
+        });
+    }
+
+    window.exportToCSV = function() {
+        let csvContent = "data:text/csv;charset=utf-8,Gericht;Anzahl\n";
+        Object.keys(globalStats).forEach(key => { csvContent += `${key};${globalStats[key]}\n`; });
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `Tagesbericht_${new Date().toLocaleDateString()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    loadStats();
+</script>
+</body>
+</html>

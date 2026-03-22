@@ -1,0 +1,159 @@
+body { 
+    font-family: 'Segoe UI', sans-serif; 
+    background: #f0f2f5; 
+    padding: 20px; 
+    color: #2c3e50; 
+}
+
+.container { 
+    max-width: 500px; 
+    margin: 0 auto; 
+    background: white; 
+    padding: 30px; 
+    border-radius: 16px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+}
+
+h1 { 
+    color: #333; 
+    text-align: center;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column; /* Datum unter "Tagesbericht" */
+    gap: 5px;
+}
+
+.timestamp-container {
+    font-size: 1rem;
+    color: #888;
+    font-weight: normal;
+}
+
+#current-date { 
+    font-weight: bold; 
+    color: #888;
+}
+
+#load-time {
+    font-weight: bold; 
+    color: #888;
+}
+
+/* Sektionen */
+.category-section {
+    margin-bottom: 50px;
+}
+
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 10px;
+    background: #f8f9fa;
+    border-left: 6px solid #333;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.main-count {
+    color: #d32f2f;
+}
+
+/* Einzelne Zeilen */
+.item-stat-row {
+    margin-bottom: 15px;
+    padding: 0 10px;
+}
+
+.item-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.item-name { color: #333; }
+.item-count { color: #333; font-size: 0.9rem; }
+
+/* Balken-Visualisierung */
+.progress-bar-bg {
+    background: #ecf0f1;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    background: #d32f2f; /* Rot für Pizzen & Kebap */
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s ease-in-out;
+}
+
+
+#others-list .progress-bar-fill {
+    background: #d32f2f; 
+}
+
+/* Gesamtsumme unten */
+.total-summary {
+    background: #333;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+
+#loading { text-align: center; padding: 40px; color: #95a5a6; }
+
+
+/* Button Gruppe */
+.button-group {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.btn-refresh, .btn-export {
+    flex: 1; /* Beide Buttons gleich breit */
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: bold;
+    transition: opacity 0.2s;
+}
+
+.btn-refresh {
+    background: #3498db; /* Blau für Aktualisieren */
+    color: white;
+}
+
+.btn-export {
+    background: #27ae60; /* Grün für Export */
+    color: white;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-refresh:hover, .btn-export:hover {
+    opacity: 0.9;
+}
+
+/* Für schmale Bildschirme (Handys) die Buttons untereinander */
+@media (max-width: 480px) {
+    .button-group {
+        flex-direction: column;
+    }
+}

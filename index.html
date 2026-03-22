@@ -209,9 +209,10 @@
         // Cleanup beim Start der App ausführen
         cleanupOldOrders();
 
-        // Prüft jede Stunde, ob es 5 Uhr morgens ist, und lädt dann die Seite neu
+        // Prüft alle 60 Sekunden, ob es 5 Uhr morgens ist
         setInterval(() => {
             const jetzt = new Date();
+            // Lädt nur neu, wenn es exakt 05:00 Uhr ist
             if (jetzt.getHours() === 5 && jetzt.getMinutes() === 0) {
                 console.log("Täglicher Neustart für Cleanup und Updates...");
                 location.reload(); 
